@@ -1,0 +1,26 @@
+{
+  "name": "@villages-quests/shared",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "exports": {
+    "./types": "./dist/types/index.js",
+    "./constants": "./dist/constants/index.js",
+    "./utils": "./dist/utils/index.js",
+    "./api": "./dist/api/index.js",
+    "./styles": "./dist/styles/index.js"
+  }
+}

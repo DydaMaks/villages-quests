@@ -1,0 +1,20 @@
+{
+  "name": "villages-quests-monorepo",
+  "version": "2.0.0",
+  "description": "Крос-платформний додаток для квестів у селах України",
+  "scripts": {
+    "install-all": "cd packages/shared && npm install && cd ../backend && npm install && cd ../web && npm install && cd ../mobile && npm install",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:web\" \"npm run dev:mobile\"",
+    "dev:backend": "cd packages/backend && npm run dev",
+    "dev:web": "cd packages/web && npm run dev",
+    "dev:mobile": "cd packages/mobile && npm start",
+    "build:web": "cd packages/web && npm run build",
+    "build:mobile": "cd packages/mobile && npm run build"
+  },
+  "devDependencies": {
+    "concurrently": "^7.6.0"
+  },
+  "keywords": ["quests", "ukraine", "villages", "react", "react-native", "mongodb"],
+  "author": "Villages Quests Team",
+  "license": "MIT"
+}

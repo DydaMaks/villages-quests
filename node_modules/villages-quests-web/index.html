@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Villages Quests - Квести у селах України</title>
+    <style>
+      /* Loading styles */
+      .loading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        font-size: 18px;
+        color: #666;
+      }
+      
+      .loading-spinner {
+        width: 24px;
+        height: 24px;
+        border: 2px solid #f3f3f3;
+        border-top: 2px solid #22c55e;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-right: 12px;
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
