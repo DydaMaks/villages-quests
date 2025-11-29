@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { questsAPI, seedAPI } from '../services/api'
 import { Link } from 'react-router-dom'
-import { Quest, QuestsResponse } from '../types'
+import { Quest } from '../types'
 
 const QuestsPage: React.FC = () => {
   const [quests, setQuests] = useState<Quest[]>([])
@@ -17,10 +17,12 @@ const QuestsPage: React.FC = () => {
   const loadQuests = async () => {
     try {
       const response = await questsAPI.getAll()
-      const data: QuestsResponse = response.data
+      const data = response.data
       
       if (data.success && data.quests) {
         setQuests(data.quests)
+      } else {
+        console.error('Помилка завантаження квестів:', data.message)
       }
     } catch (error) {
       console.error('Помилка завантаження квестів:', error)
@@ -63,7 +65,7 @@ const QuestsPage: React.FC = () => {
   if (loading) {
     return (
       <div className="container" style={{ padding: '2rem 0', textAlign: 'center' }}>
-        <div className="loading">Завантаження квестів...</div>
+        <div>Завантаження квестів...</div>
       </div>
     )
   }
@@ -110,88 +112,88 @@ const QuestsPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" style={{ gap: '1.5rem' }}>
-        {quests.map((quest) => (
-          <div key={quest._id} className="card" style={{ padding: '1.5rem' }}>
-            <div style={{ 
-              height: '200px',
-              backgroundImage: `url(${quest.images[0]?.url || 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&h=600&fit=crop'})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              borderRadius: '8px',
-              marginBottom: '1rem'
-            }} />
-            
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between',
-              alignItems: 'flex-start',
-              marginBottom: '0.5rem'
-            }}>
-              <h3 style={{ margin: 0, flex: 1, fontSize: '1.25rem' }}>{quest.title}</h3>
-              <span style={{
-                backgroundColor: getDifficultyColor(quest.difficulty),
-                color: 'white',
-                padding: '4px 12px',
-                borderRadius: '20px',
-                fontSize: '12px',
-                fontWeight: 'bold'
+      {quests.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" style={{ gap: '1.5rem' }}>
+          {quests.map((quest) => (
+            <div key={quest._id} className="card" style={{ padding: '1.5rem' }}>
+              <div style={{ 
+                height: '200px',
+                backgroundImage: `url(${quest.images?.[0]?.url || 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&h=600&fit=crop'})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                borderRadius: '8px',
+                marginBottom: '1rem'
+              }} />
+              
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between',
+                alignItems: 'flex-start',
+                marginBottom: '0.5rem'
               }}>
-                {getDifficultyText(quest.difficulty)}
-              </span>
-            </div>
-
-            <p style={{ 
-              color: '#6b7280', 
-              marginBottom: '1rem',
-              lineHeight: '1.5'
-            }}>
-              {quest.description.length > 100 
-                ? `${quest.description.substring(0, 100)}...` 
-                : quest.description
-              }
-            </p>
-
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: '1fr 1fr',
-              gap: '0.5rem',
-              marginBottom: '1rem',
-              fontSize: '14px',
-              color: '#6b7280'
-            }}>
-              <div>📍 {quest.location}</div>
-              <div>⏱ {quest.duration} хв</div>
-              <div>👥 до {quest.maxParticipants} ос.</div>
-              <div>⭐ {quest.rating.average} ({quest.rating.count})</div>
-            </div>
-
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}>
-              <div>
-                <span style={{ 
-                  fontSize: '1.25rem', 
-                  fontWeight: 'bold',
-                  color: '#22c55e'
+                <h3 style={{ margin: 0, flex: 1, fontSize: '1.25rem' }}>{quest.title}</h3>
+                <span style={{
+                  backgroundColor: getDifficultyColor(quest.difficulty),
+                  color: 'white',
+                  padding: '4px 12px',
+                  borderRadius: '20px',
+                  fontSize: '12px',
+                  fontWeight: 'bold'
                 }}>
-                  {quest.price > 0 ? `${quest.price} грн` : 'Безкоштовно'}
+                  {getDifficultyText(quest.difficulty)}
                 </span>
               </div>
 
-              {user?.role === 'user' && (
-                <button className="btn btn-primary" style={{ padding: '8px 16px' }}>
-                  Замовити
-                </button>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
+              <p style={{ 
+                color: '#6b7280', 
+                marginBottom: '1rem',
+                lineHeight: '1.5'
+              }}>
+                {quest.description.length > 100 
+                  ? `${quest.description.substring(0, 100)}...` 
+                  : quest.description
+                }
+              </p>
 
-      {quests.length === 0 && (
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: '1fr 1fr',
+                gap: '0.5rem',
+                marginBottom: '1rem',
+                fontSize: '14px',
+                color: '#6b7280'
+              }}>
+                <div>📍 {quest.location}</div>
+                <div>⏱ {quest.duration} хв</div>
+                <div>👥 до {quest.maxParticipants} ос.</div>
+                <div>⭐ {quest.rating?.average || 0} ({quest.rating?.count || 0})</div>
+              </div>
+
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <div>
+                  <span style={{ 
+                    fontSize: '1.25rem', 
+                    fontWeight: 'bold',
+                    color: '#22c55e'
+                  }}>
+                    {quest.price > 0 ? `${quest.price} грн` : 'Безкоштовно'}
+                  </span>
+                </div>
+
+                {user?.role === 'user' && (
+                  <button className="btn btn-primary" style={{ padding: '8px 16px' }}>
+                    Замовити
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
         <div style={{ 
           textAlign: 'center', 
           padding: '3rem',

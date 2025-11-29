@@ -30,7 +30,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const token = localStorage.getItem('userToken')
       
       if (userData && token) {
-        setUser(JSON.parse(userData))
+        try {
+          const response = await authAPI.getProfile()
+          const data = response.data
+          
+          if (data.success && data.user) {
+            setUser(data.user)
+          } else {
+            // Токен недійсний
+            logout()
+          }
+        } catch (error) {
+          // Помилка мережі або недійсний токен
+          logout()
+        }
       }
     } catch (error) {
       console.error('Auth status check error:', error)

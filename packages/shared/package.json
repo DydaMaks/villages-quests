@@ -5,9 +5,10 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node scripts/copy-types.js",
     "dev": "tsc --watch",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "prepack": "npm run build"
   },
   "dependencies": {
     "axios": "^1.6.0"
@@ -17,10 +18,15 @@
     "typescript": "^5.0.0"
   },
   "exports": {
+    ".": "./dist/index.js",
     "./types": "./dist/types/index.js",
     "./constants": "./dist/constants/index.js",
     "./utils": "./dist/utils/index.js",
     "./api": "./dist/api/index.js",
     "./styles": "./dist/styles/index.js"
-  }
+  },
+  "files": [
+    "dist",
+    "package.json"
+  ]
 }

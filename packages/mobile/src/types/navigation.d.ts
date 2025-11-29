@@ -6,7 +6,6 @@ export type RootStackParamList = {
   Quests: undefined;
   Profile: undefined;
 };
-
 export type LoginScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
   'Login'

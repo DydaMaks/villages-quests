@@ -1,12 +1,19 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Alert } from 'react-native';
+import { authAPI } from '../services/api';
 
 interface User {
   id: string;
+  _id?: string;
   username: string;
   email: string;
   role: 'user' | 'organizer';
   avatar: string;
+  bio?: string;
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 interface AuthContextType {
@@ -30,7 +37,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const checkAuthStatus = async () => {
     try {
       const userData = await AsyncStorage.getItem('userData');
-      if (userData) {
+      const token = await AsyncStorage.getItem('userToken');
+      
+      if (userData && token) {
         setUser(JSON.parse(userData));
       }
     } catch (error) {
@@ -42,54 +51,66 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      // Тимчасово для тесту
-      const testUser: User = {
-        id: '1',
-        username: 'testuser',
-        email: email,
-        role: 'user',
-        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop&crop=face'
-      };
+      const response = await authAPI.login(email, password);
+      const data = response.data;
       
-      await AsyncStorage.setItem('userData', JSON.stringify(testUser));
-      setUser(testUser);
-      return true;
+      if (data.success && data.token && data.user) {
+        await AsyncStorage.setItem('userData', JSON.stringify(data.user));
+        await AsyncStorage.setItem('userToken', data.token);
+        setUser(data.user);
+        return true;
+      } else {
+        Alert.alert('Помилка', data.message || 'Невірний email або пароль');
+        return false;
+      }
     } catch (error: any) {
-      console.error('Помилка входу:', error.message);
+      console.error('Помилка входу:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Помилка сервера';
+      Alert.alert('Помилка входу', errorMessage);
       return false;
     }
   };
 
   const register = async (userData: any): Promise<boolean> => {
     try {
-      const newUser: User = {
-        id: Date.now().toString(),
-        username: userData.username,
-        email: userData.email,
-        role: userData.role || 'user',
-        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop&crop=face'
-      };
+      const response = await authAPI.register(userData);
+      const data = response.data;
       
-      await AsyncStorage.setItem('userData', JSON.stringify(newUser));
-      setUser(newUser);
-      return true;
+      if (data.success && data.token && data.user) {
+        await AsyncStorage.setItem('userData', JSON.stringify(data.user));
+        await AsyncStorage.setItem('userToken', data.token);
+        setUser(data.user);
+        return true;
+      } else {
+        Alert.alert('Помилка', data.message || 'Помилка реєстрації');
+        return false;
+      }
     } catch (error: any) {
-      console.error('Помилка реєстрації:', error.message);
+      console.error('Помилка реєстрації:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Помилка сервера';
+      Alert.alert('Помилка реєстрації', errorMessage);
       return false;
     }
   };
 
   const logout = async (): Promise<void> => {
     try {
-      await AsyncStorage.removeItem('userData');
+      await AsyncStorage.multiRemove(['userData', 'userToken']);
       setUser(null);
     } catch (error) {
       console.error('Помилка виходу:', error);
+      Alert.alert('Помилка', 'Не вдалося вийти з акаунту');
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      loading, 
+      login, 
+      register, 
+      logout 
+    }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,31 +1,63 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import { validateEmail, validatePassword } from '../utils/validation'
 
 const LoginPage: React.FC = () => {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  })
+  const [errors, setErrors] = useState<{[key: string]: string}>({})
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
   const { login } = useAuth()
   const navigate = useNavigate()
 
+  const validateForm = (): boolean => {
+    const newErrors: {[key: string]: string} = {}
+    
+    const emailValidation = validateEmail(formData.email)
+    if (!emailValidation.isValid) {
+      newErrors.email = emailValidation.errors[0]
+    }
+    
+    const passwordValidation = validatePassword(formData.password)
+    if (!passwordValidation.isValid) {
+      newErrors.password = passwordValidation.errors[0]
+    }
+    
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError('')
+    
+    if (!validateForm()) {
+      return
+    }
+    
     setLoading(true)
 
     try {
-      const success = await login(email, password)
+      const success = await login(formData.email, formData.password)
       if (success) {
         navigate('/quests')
       } else {
-        setError('Невірний email або пароль')
+        setErrors({ general: 'Невірний email або пароль' })
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Помилка входу')
+      setErrors({ general: err.response?.data?.message || 'Помилка входу' })
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
+    // Очищаємо помилку поля при зміні
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }))
     }
   }
 
@@ -48,27 +80,29 @@ const LoginPage: React.FC = () => {
             <label className="form-label">Email</label>
             <input
               type="email"
-              className="form-input"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              className={`form-input ${errors.email ? 'error' : ''}`}
+              value={formData.email}
+              onChange={(e) => handleInputChange('email', e.target.value)}
               required
               placeholder="Введіть ваш email"
             />
+            {errors.email && <div className="text-error">{errors.email}</div>}
           </div>
 
           <div className="form-group">
             <label className="form-label">Пароль</label>
             <input
               type="password"
-              className="form-input"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              className={`form-input ${errors.password ? 'error' : ''}`}
+              value={formData.password}
+              onChange={(e) => handleInputChange('password', e.target.value)}
               required
               placeholder="Введіть ваш пароль"
             />
+            {errors.password && <div className="text-error">{errors.password}</div>}
           </div>
 
-          {error && (
+          {errors.general && (
             <div style={{
               color: '#ef4444',
               backgroundColor: '#fef2f2',
@@ -77,7 +111,7 @@ const LoginPage: React.FC = () => {
               marginBottom: '1rem',
               border: '1px solid #fecaca'
             }}>
-              {error}
+              {errors.general}
             </div>
           )}
 

@@ -24,7 +24,6 @@ const Loading: React.FC<LoadingProps> = ({
       padding: '2rem'
     }}>
       <div 
-        className="loading-spinner"
         style={{
           width: sizeMap[size],
           height: sizeMap[size],
@@ -44,6 +43,15 @@ const Loading: React.FC<LoadingProps> = ({
           {text}
         </p>
       )}
+      
+      <style>
+        {`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}
+      </style>
     </div>
   )
 }

@@ -12,27 +12,8 @@ import {
 import { useAuth } from '../../contexts/AuthContext';
 import { questsAPI } from '../../services/api';
 import { QuestCard } from '../../components/quests/QuestCard';
-import { COMMON_STYLES, COLORS, TYPOGRAPHY } from '../../utils/styles';
-
-interface Quest {
-  _id: string;
-  title: string;
-  description: string;
-  location: string;
-  difficulty: string;
-  price: number;
-  duration: number;
-  maxParticipants: number;
-  organizer: {
-    _id: string;
-    username: string;
-  };
-  images: Array<{ url: string; alt: string }>;
-  rating: {
-    average: number;
-    count: number;
-  };
-}
+import { COMMON_STYLES, COLORS } from '../../utils/styles';
+import { Quest, QuestsResponse } from '../../types';
 
 const QuestsScreen: React.FC = () => {
   const [quests, setQuests] = useState<Quest[]>([]);
@@ -48,15 +29,17 @@ const QuestsScreen: React.FC = () => {
     try {
       setLoading(true);
       const response = await questsAPI.getAll();
+      const data: QuestsResponse = response.data;
       
-      if (response.data.success) {
-        setQuests(response.data.quests);
+      if (data.success && data.data?.quests) {
+        setQuests(data.data.quests);
       } else {
-        Alert.alert('Помилка', 'Не вдалося завантажити квести');
+        Alert.alert('Помилка', data.message || 'Не вдалося завантажити квести');
       }
     } catch (error: any) {
       console.error('Помилка завантаження квестів:', error);
-      Alert.alert('Помилка', error.response?.data?.message || 'Помилка сервера');
+      const errorMessage = error.response?.data?.message || error.message || 'Помилка сервера';
+      Alert.alert('Помилка', errorMessage);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -80,24 +63,29 @@ const QuestsScreen: React.FC = () => {
   };
 
   const handleQuestPress = (quest: Quest) => {
-  const buttons: Array<{text: string; style?: 'default' | 'cancel' | 'destructive'; onPress?: () => void}> = [
-    { text: 'OK', style: 'default' },
-  ];
-  
-  if (user?.role === 'user') {
-    buttons.push({ 
-      text: 'Замовити', 
-      onPress: () => handleOrder(quest),
-      style: 'default' 
-    });
-  }
+    const buttons: Array<{
+      text: string; 
+      style?: 'default' | 'cancel' | 'destructive'; 
+      onPress?: () => void;
+    }> = [
+      { text: 'OK', style: 'default' },
+    ];
+    
+    if (user?.role === 'user') {
+      buttons.push({ 
+        text: 'Замовити', 
+        onPress: () => handleOrder(quest),
+        style: 'default' 
+      });
+    }
 
-  Alert.alert(
-    quest.title,
-    `Локація: ${quest.location}\nЦіна: ${quest.price > 0 ? `${quest.price} грн` : 'Безкоштовно'}\n\n${quest.description}`,
-    buttons
-  );
-};
+    Alert.alert(
+      quest.title,
+      `Локація: ${quest.location}\nЦіна: ${quest.price > 0 ? `${quest.price} грн` : 'Безкоштовно'}\n\n${quest.description}`,
+      buttons
+    );
+  };
+
   const handleOrder = (quest: Quest) => {
     Alert.alert(
       'Замовлення',

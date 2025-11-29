@@ -112,9 +112,9 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Отримати поточного користувача
 router.get('/me', auth, async (req, res) => {
   try {
+    // Повертаємо user без обгортки data для сумісності з фронтендом
     res.json({
       success: true,
       user: req.user
@@ -127,5 +127,4 @@ router.get('/me', auth, async (req, res) => {
     });
   }
 });
-
 export default router;

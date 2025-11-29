@@ -35,3 +35,6 @@ declare module 'expo' {
   export = Expo;
   export as namespace Expo;
 }
+
+// Глобальна змінна для розробки
+declare var __DEV__: boolean;

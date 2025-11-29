@@ -1,3 +1,4 @@
+// packages/mobile/src/utils/styles.ts
 import { StyleSheet } from 'react-native';
 
 export const COLORS = {

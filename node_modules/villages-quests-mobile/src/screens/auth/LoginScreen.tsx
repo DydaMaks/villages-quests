@@ -1,4 +1,4 @@
-// packages/mobile/src/screens/LoginScreen.tsx
+// packages/mobile/src/screens/auth/LoginScreen.tsx
 import React, { useState } from 'react';
 import {
   View,
@@ -11,10 +11,10 @@ import {
   Platform,
   ScrollView,
 } from 'react-native';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { RootStackParamList } from '../../../App';
+import { COMMON_STYLES, COLORS } from '../../utils/styles';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../App';
-import { COMMON_STYLES, COLORS } from '../utils/styles';
 
 type LoginScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
